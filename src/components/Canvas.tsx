@@ -2,7 +2,10 @@ import type React from "react";
 import DraggableElement from "./DraggableElement";
 import type { ElementType } from "../types";
 import Editor from "./TextEditor";
+import Link from "./Link";
+import Draw from "./Draw";
 import { useRef } from "react";
+import * as Y from "yjs";
 
 interface CanvasProps {
   elements: ElementType[];
@@ -16,13 +19,20 @@ const Canvas: React.FC<CanvasProps> = ({
   provider,
   documentList,
   deleteElement,
+  ydoc,
 }) => {
+  // if (!provider) {
+  //   return
+  // }
+
   const onDragOver = (e: React.DragEvent) => {
     e.preventDefault();
   };
-  const quillRef = useRef(null);
+  const editorRef = useRef(null);
+  const linkRef = useRef(null);
 
   const onDrop = (e: React.DragEvent) => {
+    console.log("dropping");
     e.preventDefault();
     const type = e.dataTransfer.getData("text");
     const canvasRect = e.currentTarget.getBoundingClientRect();
@@ -32,16 +42,37 @@ const Canvas: React.FC<CanvasProps> = ({
   };
 
   const renderEditor = (document) => (
-    <Editor document={document} ref={quillRef} provider={provider} />
+    <Editor document={document} ref={editorRef} provider={provider} />
   );
 
+  const renderLink = (document) => {
+    console.log("rendering link...");
+    return (
+      <Link
+        document={document}
+        ref={linkRef}
+        provider={provider}
+        updateElement={updateElement}
+      />
+    );
+  };
+
+  const renderDraw = (document) => {
+    return <Draw ydoc={ydoc} />;
+  };
+
   const renderElement = (document) => {
-    const type = document.get("metadata").get("type");
-    console.log("type", type);
+    if (!(document instanceof Y.Map) || !document.has("type")) return;
+
+    const type = document.get("type").toString();
+
     switch (type) {
       case "text":
         return renderEditor(document);
-        break;
+      case "link":
+        return renderLink(document);
+      case "draw":
+        return renderDraw(document);
       default:
         return null;
     }
@@ -50,7 +81,7 @@ const Canvas: React.FC<CanvasProps> = ({
   return (
     <div className="canvas" onDragOver={onDragOver} onDrop={onDrop}>
       {documentList.map((document) => (
-        <div key={document.get("metadata").get("key")}>
+        <div className="draggable-card" key={document.get("id")}>
           <DraggableElement
             element={document}
             updateElement={updateElement}

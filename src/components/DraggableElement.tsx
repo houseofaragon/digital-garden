@@ -15,39 +15,40 @@ const DraggableText: React.FC<DraggableTextProps> = ({
   children,
 }) => {
   const nodeRef = useRef(null);
-  const metadata = element.get("metadata");
-  const left = metadata.get("x");
-  const top = metadata.get("y");
-  const style = {
-    position: "absolute",
-    top,
-    left,
-  };
+  // if (!element.has("x") || !element.has("y")) return;
 
   const [position, setPosition] = useState({
-    x: element.get("metadata").get("x"),
-    y: element.get("metadata").get("y"),
+    x: element.get("x"),
+    y: element.get("y"),
   });
 
   const handleUpdateElement = (e, data) => {
-    const id = element.get("metadata").get("id");
-    const deltaPos = {
-      x: Math.abs(position.x + data.x),
-      y: Math.abs(position.y + data.y),
-    };
-    updateElement(id, deltaPos);
+    e.preventDefault();
+    if (0 === data.x && 0 === data.y) return;
+    element.set("x", Math.abs(position.x + data.x));
+    element.set("y", Math.abs(position.y + data.y));
+    console.log('moving', element.toJSON())
+    updateElement(element);
   };
 
   const handleDelete = (e) => {
     e.preventDefault();
-    const id = element.get("metadata").get("id");
-    deleteElement(id);
+    deleteElement(element);
   };
 
+  console.log("elementss", element);
   return (
-    <Draggable nodeRef={nodeRef} onStop={handleUpdateElement}>
-      <div ref={nodeRef} className="draggable-element" style={style}>
-        {children}
+    <Draggable nodeRef={nodeRef} onStop={handleUpdateElement} cancel="strong">
+      <div
+        ref={nodeRef}
+        className="draggable-element"
+        style={{
+          position: "absolute",
+          top: position.y,
+          left: position.x,
+        }}
+      >
+        <strong>{children}</strong>
         <button onClick={handleDelete}>Delete</button>
       </div>
     </Draggable>
