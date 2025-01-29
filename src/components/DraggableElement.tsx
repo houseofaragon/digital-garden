@@ -2,6 +2,8 @@ import type React from "react";
 import { useRef, useState } from "react";
 import Draggable from "react-draggable";
 import type { ElementType } from "../types";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUpDownLeftRight, faTrashCan } from "@fortawesome/free-solid-svg-icons";
 
 interface DraggableTextProps {
   element: ElementType;
@@ -27,7 +29,7 @@ const DraggableText: React.FC<DraggableTextProps> = ({
     if (0 === data.x && 0 === data.y) return;
     element.set("x", Math.abs(position.x + data.x));
     element.set("y", Math.abs(position.y + data.y));
-    console.log('moving', element.toJSON())
+    console.log("moving", element.toJSON());
     updateElement(element);
   };
 
@@ -38,7 +40,12 @@ const DraggableText: React.FC<DraggableTextProps> = ({
 
   console.log("elementss", element);
   return (
-    <Draggable nodeRef={nodeRef} onStop={handleUpdateElement} cancel="strong">
+    <Draggable
+      nodeRef={nodeRef}
+      onStop={handleUpdateElement}
+      handle="strong"
+      // cancel="span"
+    >
       <div
         ref={nodeRef}
         className="draggable-element"
@@ -48,8 +55,17 @@ const DraggableText: React.FC<DraggableTextProps> = ({
           left: position.x,
         }}
       >
-        <strong>{children}</strong>
-        <button onClick={handleDelete}>Delete</button>
+        <div className="draggable-menu">
+          <div>
+            <strong className="cursor">
+              <FontAwesomeIcon icon={faUpDownLeftRight} />
+            </strong>
+          </div>
+          <button onClick={handleDelete}>
+            <FontAwesomeIcon icon={faTrashCan} />
+          </button>
+        </div>
+        <div style={{ width: "100%", height: "100%" }}>{children}</div>
       </div>
     </Draggable>
   );

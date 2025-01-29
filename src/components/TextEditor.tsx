@@ -22,7 +22,22 @@ const Editor = forwardRef(({ provider, document }, ref) => {
     );
 
     const quill = new Quill(editorContainer, {
-      theme: "snow",
+      modules: {
+        cursors: true,
+        toolbar: [
+          // adding some basic Quill content features
+          // [{ header: [1, 2, false] }],
+          // ["bold", "italic", "underline"],
+          ["image", "code-block"],
+        ],
+        history: {
+          // Local undo shouldn't undo changes
+          // from remote users
+          userOnly: true,
+        },
+      },
+      placeholder: "Start collaborating...",
+      theme: "bubble", // 'bubble' is also great
     });
 
     const yText = document.get("text");

@@ -9,17 +9,6 @@ const Draw = ({ ydoc, persistence }) => {
   const ystrokes = ydoc.getMap("root").get("strokeNodes");
 
   useEffect(() => {
-    // persistence.on("synced", () => {
-    //   console.log("Loaded from IndexedDB");
-    //   // Redraw existing strokes from Yjs
-    //   ystrokes.toArray().forEach((ystroke) => {
-    //     drawStroke(ystroke.toArray());
-    //   });
-    // });
-
-    // return () => {
-    //   persistence.destroy(); // Clean up persistence
-    // };
     ystrokes.toArray().forEach((ystroke) => {
       drawStroke(ystroke.toArray());
     });
@@ -69,6 +58,7 @@ const Draw = ({ ydoc, persistence }) => {
     console.log(ydoc.getMap("root").get("strokeNodes").toJSON());
     context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height); // Optional: Clear and redraw if needed
   };
+
   const onPointerDown = (e) => {
     setIsDrawing(true);
     const rect = canvasRef.current.getBoundingClientRect();
@@ -97,8 +87,10 @@ const Draw = ({ ydoc, persistence }) => {
 
     // Draw the stroke in real-time
     const points = currentStroke.toArray(); // Get all points in the current stroke
-    
+    // ydoc.getMap("root").get("strokeNodes").push([newStroke]);
+
     drawStroke(points); // Draw the stroke to the canvas
+    ydoc.getMap("root").get("strokeNodes").push([currentStroke]);
   };
 
   const onPointerUp = () => {
@@ -148,8 +140,8 @@ const Draw = ({ ydoc, persistence }) => {
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        width="300"
-        height="300"
+        width="100%"
+        height="100%"
         style={{ border: "1px solid black", cursor: "crosshair" }}
       ></canvas>
       <button onClick={clearDrawing}>Clear</button>

@@ -28,7 +28,7 @@ const Toolbar: React.FC = () => {
         draggable
         onDragStart={(e) => onDragStart(e, "draw")}
       >
-        <FontAwesomeIcon icon={faPencil} />
+        <FontAwesomeIcon icon={faPencil} size="sm"  swapOpacity />
       </div>
     </div>
   );

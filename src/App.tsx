@@ -7,6 +7,7 @@ import * as Y from "yjs";
 import { WebrtcProvider } from "y-webrtc";
 import { IndexeddbPersistence } from "y-indexeddb";
 import { v4 as uuidv4 } from "uuid";
+
 const ydoc = new Y.Doc();
 const root = ydoc.getMap("root");
 const docNodes = new Y.Array();
@@ -19,38 +20,29 @@ if (!root.has("docNodes")) {
 if (!root.has("strokeNodes")) {
   root.set("strokeNodes", strokeNodes);
 }
+
 const provider = new WebrtcProvider("digital-garden-room", ydoc);
 
 const App: React.FC = () => {
   const [documentList, setDocumentList] = useState<Y.Map<any>[]>([]);
-  //const [provider, setProvider] = useState(null);
-
-  // Initialize shared types
 
   useEffect(() => {
     const persistence = new IndexeddbPersistence("digital-garden-room", ydoc);
-    // setProvider(provider);
     const docNodes = ydoc.getMap("root").get("docNodes") as Y.Array<Y.Map<any>>;
 
-    // Initial sync
     persistence.on("synced", () => {
       updateDocumentList();
     });
 
     const updateDocumentList = () => {
-      //console.log("updating document list", docNodes.toArray());
       const docNodes = ydoc.getMap("root").get("docNodes").toArray();
       setDocumentList([...docNodes]);
     };
 
-    // Observe changes to `docNodes`
-    //ydoc.getMap("root").get("docNodes").observeDeep(updateDocumentList);
     ydoc.getMap("root").observeDeep(updateDocumentList);
 
     return () => {
-      ydoc.getMap("root").unobserveDeep(updateDocumentList);
-      // provider.disconnect();
-      // ydoc.destroy();
+      ydoc.getMap("root").observeDeep(updateDocumentList);
     };
   }, [ydoc]);
 
@@ -69,23 +61,47 @@ const App: React.FC = () => {
     newDoc.set("y", y);
     newDoc.set("type", yType);
 
-    console.log("adding element", newDoc.toJSON());
     ydoc.getMap("root").get("docNodes").push([newDoc]);
   };
 
-  const updateElement = (updatedElement: Y.Map<any>) => {
-    if (!(updatedElement instanceof Y.Map) || !updatedElement.has("type"))
-      return;
+  const cloneYMap = (original: Y.Map<any>): Y.Map<any> => {
+    const newMap = new Y.Map();
 
-    const docNodes = ydoc.getMap("root").get("docNodes");
-    docNodes.forEach((doc, idx) => {
-      if (updatedElement.get("id") === doc.get("id")) {
-        ydoc.transact(() => {
-          ydoc.getMap("root").get("docNodes").delete(idx, 1);
-          ydoc.getMap("root").get("docNodes").insert(idx, [updatedElement]);
-        });
+    original.forEach((value, key) => {
+      if (value instanceof Y.Text) {
+        const newText = new Y.Text();
+        newText.insert(0, value.toString());
+        newMap.set(key, newText);
+      } else if (value instanceof Y.Map) {
+        newMap.set(key, cloneYMap(value));
+      } else if (value instanceof Y.Array) {
+        const newArray = new Y.Array();
+        newArray.push(value.toArray());
+        newMap.set(key, newArray);
+      } else {
+        newMap.set(key, value);
       }
     });
+
+    return newMap;
+  };
+
+  const updateElement = (updatedElement: Y.Map<any>) => {
+    const docNodes = ydoc.getMap("root").get("docNodes") as Y.Array<Y.Map<any>>;
+
+    // Find index of element with matching ID
+    const index = docNodes
+      .toArray()
+      .findIndex((doc) => doc.get("id") === updatedElement.get("id"));
+
+    if (index !== -1) {
+      ydoc.transact(() => {
+        const updatedCopy = cloneYMap(updatedElement); // Make a direct clone
+
+        docNodes.delete(index, 1); // Remove old element
+        docNodes.insert(index, [updatedCopy]); // Insert updated element
+      });
+    }
   };
 
   const deleteElement = (element: Y.Map<any>) => {
@@ -101,9 +117,6 @@ const App: React.FC = () => {
     console.log("docNodes", ydoc.getMap("root").get("docNodes").toJSON());
   };
 
-  console.log("ydoc", ydoc.toJSON());
-  console.log("document", documentList);
-  //if (!provider) return;
   return (
     <div className="app">
       <Toolbar />

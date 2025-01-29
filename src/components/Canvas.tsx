@@ -21,23 +21,22 @@ const Canvas: React.FC<CanvasProps> = ({
   deleteElement,
   ydoc,
 }) => {
-  // if (!provider) {
-  //   return
-  // }
-
   const onDragOver = (e: React.DragEvent) => {
+    // allow dropping
     e.preventDefault();
   };
+
   const editorRef = useRef(null);
   const linkRef = useRef(null);
 
   const onDrop = (e: React.DragEvent) => {
-    console.log("dropping");
     e.preventDefault();
     const type = e.dataTransfer.getData("text");
+    console.log("type", type);
     const canvasRect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - canvasRect.left;
     const y = e.clientY - canvasRect.top;
+
     addElement(type, x, y);
   };
 
@@ -61,11 +60,29 @@ const Canvas: React.FC<CanvasProps> = ({
     return <Draw ydoc={ydoc} />;
   };
 
+  const renderMedia = (document) => {
+    console.log("reder");
+    console.log(
+      "rendering media",
+      `https://www.youtube.com/embed/${new URL(
+        document.get("type").toString()
+      ).searchParams.get("v")}`
+    );
+    const url = document.get("type").toString();
+    const src = url.includes("embed")
+      ? url
+      : `https://www.youtube.com/embed/${new URL(
+          document.get("type").toString()
+        ).searchParams.get("v")}`;
+    return <iframe width="300" height="215" src={src}></iframe>;
+  };
+
   const renderElement = (document) => {
     if (!(document instanceof Y.Map) || !document.has("type")) return;
 
     const type = document.get("type").toString();
-
+    console.log("type---------->",type, type.includes("http"));
+    if (type.includes("http")) return renderMedia(document);
     switch (type) {
       case "text":
         return renderEditor(document);
@@ -73,6 +90,8 @@ const Canvas: React.FC<CanvasProps> = ({
         return renderLink(document);
       case "draw":
         return renderDraw(document);
+      case type.includes("http"):
+        return renderMedia(document);
       default:
         return null;
     }
