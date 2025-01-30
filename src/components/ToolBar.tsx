@@ -14,21 +14,21 @@ const Toolbar: React.FC = () => {
         draggable
         onDragStart={(e) => onDragStart(e, "text")}
       >
-        <FontAwesomeIcon icon={faFont} />
+        <FontAwesomeIcon icon={faFont} size="xs" />
       </div>
       <div
         className="tool"
         draggable
         onDragStart={(e) => onDragStart(e, "link")}
       >
-        <FontAwesomeIcon icon={faLink} />
+        <FontAwesomeIcon icon={faLink} size="xs" />
       </div>
       <div
         className="tool"
         draggable
         onDragStart={(e) => onDragStart(e, "draw")}
       >
-        <FontAwesomeIcon icon={faPencil} size="sm"  swapOpacity />
+        <FontAwesomeIcon icon={faPencil} size="xs"  swapOpacity />
       </div>
     </div>
   );

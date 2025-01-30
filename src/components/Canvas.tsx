@@ -45,7 +45,6 @@ const Canvas: React.FC<CanvasProps> = ({
   );
 
   const renderLink = (document) => {
-    console.log("rendering link...");
     return (
       <Link
         document={document}
@@ -57,7 +56,7 @@ const Canvas: React.FC<CanvasProps> = ({
   };
 
   const renderDraw = (document) => {
-    return <Draw ydoc={ydoc} />;
+    return <Draw document={document} />;
   };
 
   const renderMedia = (document) => {
@@ -81,7 +80,7 @@ const Canvas: React.FC<CanvasProps> = ({
     if (!(document instanceof Y.Map) || !document.has("type")) return;
 
     const type = document.get("type").toString();
-    console.log("type---------->",type, type.includes("http"));
+
     if (type.includes("http")) return renderMedia(document);
     switch (type) {
       case "text":
@@ -99,6 +98,19 @@ const Canvas: React.FC<CanvasProps> = ({
 
   return (
     <div className="canvas" onDragOver={onDragOver} onDrop={onDrop}>
+         <pre className="ascii">
+          ...Start growing...
+      {`
+                   _(_)_                         wWWWw   _
+       @@@@       (_)@(_)  vVVVv     _     @@@@  (___) _(_)_
+     @@()@@ wWWWw   (_)\ .  (___)   _(_)_  @@()@@   Y  (_)@(_)
+      @@@@  (___)     \`|/    Y    (_)@(_)  @@@@   \\|/   (_)\\
+       /      Y       \\|    \\|/    /(_)    \\|      |/      |
+    \\ |     \\ |/       | / \\ | /  \\|/       |/    \\|      \\|/
+    \\\\|//   \\\\|///  \\\\\\|//\\\\\\|///\ \\|///  \\\\\\|//  \\\\|//  \\\\\\|// 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      `}
+    </pre>
       {documentList.map((document) => (
         <div className="draggable-card" key={document.get("id")}>
           <DraggableElement

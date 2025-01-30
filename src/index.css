@@ -11,47 +11,45 @@ html, body {
 .app {
   display: flex;
   height: 100vh;
-  background-color: #c3bfbf;
+  background-color: #131212;
 }
 
 .toolbar {
-  width: 60px;
-  height: 200px;
-  background-color: #f7f2f2;
+  width: 40px;
+  background-color: rgb(137, 87, 229);
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 .tool {
-  width: 30px;
+  width: 25px;
+  height: 25px;
   margin: 5px;
-  height: 30px;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #e1dbe2;
-  border: 1px solid #ccc;
+  color: #e4dbe2;
+  background-color: #121013;
   border-radius: 50%;
   cursor: move;
-  /* color: red */
 }
 
 .canvas {
   flex: 1;
   position: relative;
-  /* overflow: hidden; */
   background-color: #151418;
 }
 
 .draggable-element {
   min-width: 300px;
   min-height: 150px;
-  color: #282525;
+  color: #dcdada;
   position: absolute;
-  background-color: #dad4d4;
-  border: 1px solid #000000;
-  padding: 0 10px;
+  background-color: rgb(35, 36, 31);
+
+  opacity: 0.9;
+  border: 1px solid #6d6363;
   user-select: none;
   display: flex;
   flex-direction: column;
@@ -63,40 +61,57 @@ html, body {
   border-radius: 2%;
 }
 
+.draggable-element:hover {
+  border: 1px solid rgb(137, 87, 229); 
+}
+
 .draggable-menu {
   width: 100%;
-  padding: 10px 0;
+  padding: 5px 0;
   display: flex;
   flex-direction: row;
   align-content: space-between;
   justify-content: space-between;
+  border-bottom: 1px solid #6d6363;
+  background-color: #121013;
+
 }
 
-.resize-handle {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background-color: #0077ff;
+::before {
+  color: #fff;
 }
 
-.resize-handle.right {
-  top: 50%;
-  right: -5px;
-  transform: translateY(-50%);
+svg {
+  padding: 0 10px;
 }
-
-.resize-handle.bottom {
-  bottom: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
 button {
-  background-color: #ccc;
+  background-color: transparent;
+  color: #fff;
   border: none;
 }
 
 svg:hover, button:hover {
   cursor: pointer;
-  color: purple
+}
+
+.draw {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.draw-canvas {
+  background-color: #ccc;
+  cursor: crosshair;
+}
+
+.draw button {
+  padding: 5px;
+}
+
+.ql-container {
+}
+
+.ascii {
+  color:rgb(137, 87, 229)
 }

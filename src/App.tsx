@@ -27,8 +27,9 @@ const App: React.FC = () => {
   const [documentList, setDocumentList] = useState<Y.Map<any>[]>([]);
 
   useEffect(() => {
+    // reload issues
+    // https://discuss.yjs.dev/t/refreshing-page-causes-y-indexeddb-to-accumulate-db-entries/984/19
     const persistence = new IndexeddbPersistence("digital-garden-room", ydoc);
-    const docNodes = ydoc.getMap("root").get("docNodes") as Y.Array<Y.Map<any>>;
 
     persistence.on("synced", () => {
       updateDocumentList();
@@ -61,7 +62,13 @@ const App: React.FC = () => {
     newDoc.set("y", y);
     newDoc.set("type", yType);
 
+    if (type === "draw") {
+      const strokes = new Y.Array();
+      newDoc.set("strokes", strokes);
+    }
+
     ydoc.getMap("root").get("docNodes").push([newDoc]);
+    console.log("yodoc", ydoc.toJSON());
   };
 
   const cloneYMap = (original: Y.Map<any>): Y.Map<any> => {

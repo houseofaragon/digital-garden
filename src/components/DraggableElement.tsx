@@ -58,7 +58,7 @@ const DraggableText: React.FC<DraggableTextProps> = ({
         <div className="draggable-menu">
           <div>
             <strong className="cursor">
-              <FontAwesomeIcon icon={faUpDownLeftRight} />
+              <FontAwesomeIcon icon={faUpDownLeftRight} size="sm" />
             </strong>
           </div>
           <button onClick={handleDelete}>

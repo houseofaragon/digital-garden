@@ -2,38 +2,36 @@ import { useEffect, useRef, useState } from "react";
 import { getStroke } from "perfect-freehand";
 import * as Y from "yjs";
 
-const Draw = ({ ydoc, persistence }) => {
+const Draw = ({ document, persistence }) => {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [context, setContext] = useState(null);
-  const ystrokes = ydoc.getMap("root").get("strokeNodes");
+  const ystrokes = document.get("strokes");
+  //ystrokes.clear();
+  if (!ystrokes) return;
 
   useEffect(() => {
-    ystrokes.toArray().forEach((ystroke) => {
-      drawStroke(ystroke.toArray());
-    });
-  }, [ydoc]);
+    //console.log("ystrokes", ystrokes.toJSON());
+    // ystrokes.toArray().forEach((ystroke) => {
+    //   drawStroke(ystroke.toArray());
+    // });
+  }, [ystrokes]);
 
-  // Set up canvas context
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     setContext(ctx);
 
-    // Observe strokes and redraw new ones
-    ydoc
-      .getMap("root")
-      .get("strokeNodes")
-      .observe((event) => {
-        event.changes.added.forEach((item) => {
-          item.content.getContent().forEach((ystroke) => {
-            drawStroke(ystroke.toArray());
-          });
+    ystrokes.observe((event) => {
+      event.changes.added.forEach((item) => {
+        item.content.getContent().forEach((ystroke) => {
+          drawStroke(ystroke.toArray());
         });
       });
+    });
 
     return () => {
-      ydoc.getMap("root").get("strokeNodes").unobserve();
+      ystrokes.unobserve();
     };
   }, [context]);
 
@@ -41,7 +39,7 @@ const Draw = ({ ydoc, persistence }) => {
     if (!context) return;
 
     const stroke = getStroke(points, {
-      size: 8,
+      size: 2,
       thinning: 0.5,
       smoothing: 0.5,
       streamline: 0.5,
@@ -54,47 +52,46 @@ const Draw = ({ ydoc, persistence }) => {
     context.fill(myPath);
   };
 
-  const clearDrawing = () => {
-    console.log(ydoc.getMap("root").get("strokeNodes").toJSON());
-    context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height); // Optional: Clear and redraw if needed
-  };
-
   const onPointerDown = (e) => {
     setIsDrawing(true);
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const newStroke = new Y.Array();
-    newStroke.push([[x, y, e.pressure]]);
-    ydoc.getMap("root").get("strokeNodes").push([newStroke]);
+    // const rect = canvasRef.current.getBoundingClientRect();
+    // const x = e.clientX - rect.left;
+    // const y = e.clientY - rect.top;
+    // const newStroke = new Y.Array();
+    // newStroke.push([[x, y, e.pressure]]);
+    // ydoc.getMap("root").get("strokeNodes").push([newStroke]);
   };
 
   const onPointerMove = (e) => {
     if (!isDrawing) return;
 
+    // const rect = canvasRef.current.getBoundingClientRect();
+    // const x = e.clientX - rect.left;
+    // const y = e.clientY - rect.top;
+
+    // const currentStroke = ydoc
+    //   .getMap("root")
+    //   .get("strokeNodes")
+    //   .get(ystrokes.toArray().length - 1);
+
+    // currentStroke.push([[x, y, e.pressure]]);
+    // const points = currentStroke.toArray(); // Get all points in the current stroke
+    // drawStroke(points); // Draw the stroke to the canvas
     const rect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-
-    // Get the last stroke
-    const currentStroke = ydoc
-      .getMap("root")
-      .get("strokeNodes")
-      .get(ystrokes.toArray().length - 1);
-
-    // Add the new point to the stroke
-    currentStroke.push([[x, y, e.pressure]]);
-
-    // Draw the stroke in real-time
-    const points = currentStroke.toArray(); // Get all points in the current stroke
-    // ydoc.getMap("root").get("strokeNodes").push([newStroke]);
-
-    drawStroke(points); // Draw the stroke to the canvas
-    ydoc.getMap("root").get("strokeNodes").push([currentStroke]);
+    const newStroke = new Y.Array();
+    newStroke.push([[x, y, e.pressure]]);
+    ystrokes.push([newStroke]);
   };
 
   const onPointerUp = () => {
     setIsDrawing(false);
+  };
+
+  const clearDrawing = () => {
+    console.log(ydoc.getMap("root").get("strokeNodes").toJSON());
+    context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height); // Optional: Clear and redraw if needed
   };
 
   function getSvgPathFromStroke(points, closed = true) {
@@ -134,18 +131,19 @@ const Draw = ({ ydoc, persistence }) => {
   const average = (a, b) => (a + b) / 2;
 
   return (
-    <>
+    <div className="draw">
       <canvas
+        className="draw-canvas"
         ref={canvasRef}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        width="100%"
-        height="100%"
+        width="300"
+        height="300"
         style={{ border: "1px solid black", cursor: "crosshair" }}
       ></canvas>
       <button onClick={clearDrawing}>Clear</button>
-    </>
+    </div>
   );
 };
 
